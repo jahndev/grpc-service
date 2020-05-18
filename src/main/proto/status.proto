@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package com.gbusiness.agentslot.api;
+option java_package = "com.gbusiness.agentslot.api";
+
+message Status {
+  int32 api_error = 1;
+}

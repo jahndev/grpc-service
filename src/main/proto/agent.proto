@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.gbusiness.agentslot.api;
+
+option java_multiple_files = true;
+option java_package = "com.gbusiness.agentslot.api";
+
+message Agent {
+  // Unique identifier for an agent with following format:
+  // "agent/[uid]"
+  string id = 1;
+
+  // First name of the agent.
+  string first_name = 2;
+
+  // Last name of the agent.
+  string last_name = 3;
+
+  // Email of the agent.
+  string email = 4;
+
+  // Unique identifier of an agent profile.
+  string agent_profile_id = 5;
+}
+
+// Defines the profile of an agent.
+message AgentProfile {
+  // Unique identifier for an agent profile with following format:
+  // "agent_profile/[uid]"
+  string id = 1;
+
+  // The time when the agent starts working.
+  // Appointments can only be assigned during working period times.
+  // Pre-padding of an appointment can not happen prior to work_start_time.
+  int32 work_start_time = 2;
+
+  // The time when the agent ends working.
+  // Post-padding of an appointment can not happen post the work_end_time.
+  int32 work_end_time = 3;
+}

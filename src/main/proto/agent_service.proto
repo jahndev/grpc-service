@@ -1,0 +1,80 @@
+syntax = "proto3";
+import "agent.proto";
+import "status.proto";
+
+package com.gbusiness.agentslot.api;
+
+option java_multiple_files = true;
+option java_package = "com.gbusiness.agentslot.api";
+option java_outer_classname = "AgentServiceProto";
+
+// Request to create a new Agent.
+message CreateAgentRequest {
+  // Agent to be created.
+  Agent agent = 1;
+}
+
+// Request to remove an agent.
+message RemoveAgentRequest {
+  // Id of the agent to remove.
+  string agent_id = 1;
+}
+
+// Request to update an agent.
+message UpdateAgentRequest {
+  // Agent object containing the new information of the agent.
+  // The agent_id field is required and can not be changed.
+  Agent agent = 1;
+}
+
+// Request to create an agent profile.
+message CreateAgentProfileRequest {
+  // Agent profile to be created.
+  AgentProfile agent_profile = 1;
+}
+
+// Request to remove an agent profile.
+message RemoveAgentProfileRequest {
+  // Id of the agent profile to be deleted.
+  string agent_profile_id = 1;
+}
+
+// Request to update an agent profile.
+message UpdateAgentProfileRequest {
+  // Agent profile object containing the new information of the profile.
+  // The agent_profile_id is required and can not be changed.
+  AgentProfile agent_profile = 1;
+}
+
+// Response for the agent service requests.
+message AgentServiceResponse {
+  // If the request is CreateAgentProfile or CreateAgent
+  // this field is set with the id of the new generated resource.
+  string resource_id = 1;
+
+  // If errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+service AgentService {
+  rpc CreateAgent(CreateAgentRequest) returns (AgentServiceResponse) {
+  }
+
+  rpc RemoveAgent(RemoveAgentRequest) returns (AgentServiceResponse) {
+  }
+
+  rpc UpdateAgent(UpdateAgentRequest) returns (AgentServiceResponse) {
+  }
+
+  rpc CreateAgentProfile(CreateAgentProfileRequest)
+      returns (AgentServiceResponse) {
+  }
+
+  rpc RemoveAgentProfile(RemoveAgentProfileRequest)
+      returns (AgentServiceResponse) {
+  }
+
+  rpc UpdateAgentProfile(UpdateAgentProfileRequest)
+      returns (AgentServiceResponse) {
+  }
+}

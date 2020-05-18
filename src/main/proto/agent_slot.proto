@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package com.gbusiness.agentslot.api;
+
+option java_multiple_files = true;
+option java_package = "com.gbusiness.agentslot.api";
+
+message AgentSlot {
+  // Unique identifier for an agent slot with following format:
+  // "agent_slot/[uid]"
+  string id = 1;
+
+  // Unique identifier for an agent.
+  string agent_id = 2;
+
+  // Used to specify the start time of the agent slot.
+  // The start time is calculated as
+  // index * meeting_profile.time_between_minutes.
+  int32 index = 3;
+
+  // Status of the agent slot.
+  SlotStatus status = 4;
+
+  TimeInterval timeInterval = 5;
+}
+
+message TimeInterval {
+  // Start point of the interval.
+  string from = 1;
+  // End point of the interval.
+  string to = 2;
+}
+
+// Status of an agent slot.
+  enum SlotStatus {
+  UNKNOWN_SLOT_STATUS = 0;
+  // The agent slot is confirmed.
+  CONFIRMED = 1;
+  // The agent slot is reserved. Pending for confirmation.
+  // RESERVED agent slots are not accounted as available slots.
+  RESERVED = 2;
+  // The agent slot is cancelled.
+  // The slot ics not accounted as available.
+  CANCELLED = 3;
+  // The agent slot is free.
+  // It can be accounted to calculate available slots.
+  FREE = 4;
+}
+
+// Profile specifying settings of the meetings.
+message MeetingProfile {
+  // Unique identifier for a meeting profile with following format:
+  // "meeting_profile/[uid]"
+  string id = 1;
+
+  // Duration of the meetings in minutes.
+  int32 meeting_duration_in_minutes = 2;
+
+  // Duration of the padding before the meeting in minutes.
+  int32 pre_padding_duration_in_minutes = 3;
+
+  // Duration of the padding after the meeting in minutes.
+  int32 post_padding_duration_in_minutes = 4;
+
+  // Time between the possible start times of the meetings.
+  int32 time_between_meetings_in_minutes = 5;
+}

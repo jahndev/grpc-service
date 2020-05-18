@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+// Definition of a product
+message Product {
+  // Unique identifier for a product with following format:
+  // "product/[uid]"
+  string id = 1;
+
+  // Title of the product.
+  string title = 2;
+
+  // Short description of the product.
+  string description = 3;
+
+  // List of topic ids that represent the product.
+  repeated string topic_ids = 4;
+}
+
+// Definition of a product's topic
+message ProductTopic {
+  // Unique identifier for a topic with following format:
+  // "topic/[uid]"
+  string id = 1;
+
+  // Unique id of the category this topic belongs to.
+  string category_id = 2;
+
+  // Short description of the topic.
+  string description = 3;
+}
+
+message TopicCategory {
+  // Unique identifier for a category with following format:
+  // "category/[uid]"
+  string id = 1;
+
+  // Short description of the category.
+  string description = 2;
+}

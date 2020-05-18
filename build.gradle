@@ -1,0 +1,116 @@
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'application'
+
+description = "product service"
+startScripts.enabled = false
+run.enabled = false
+
+repositories {
+  mavenCentral()
+  jcenter()
+  mavenLocal()
+  maven { url "http://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+test {
+  useJUnitPlatform()
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src/main/gen'
+    }
+    resources {
+      srcDirs "src/main/resources"
+    }
+    proto {
+      srcDir 'src/main/proto'
+    }
+  }
+}
+
+protobuf {
+  generatedFilesBaseDir = "$projectDir/src"
+  protoc {
+    artifact = "com.google.protobuf:protoc:3.0.0-beta-1"
+  }
+  //noinspection GroovyAssignabilityCheck
+  plugins {
+    grpc {
+      artifact = 'io.grpc:protoc-gen-grpc-java:0.8.0'
+    }
+  }
+  generateProtoTasks {
+    all()*.plugins {
+      grpc {
+        outputSubDir = 'gen'
+      }
+    }
+
+    all().each { task ->
+      task.builtins {
+        java {
+          outputSubDir = 'gen'
+        }
+      }
+    }
+
+  }
+
+}
+
+dependencies {
+  compile 'org.projectlombok:lombok:1.18.12'
+  compile 'ch.qos.logback:logback-classic:1.1.3'
+  compile 'com.google.inject:guice:4.0'
+  compile 'com.google.protobuf:protobuf-java:3.0.0-beta-1'
+  compile 'io.grpc:grpc-all:0.8.0'
+  compile 'org.slf4j:slf4j-api:1.7.12'
+  compile 'com.google.inject.extensions:guice-persist:4.0'
+  compile 'org.hibernate:hibernate-core:5.4.13.Final'
+  compile 'mysql:mysql-connector-java:5.1.13'
+  compile 'com.google.api.grpc:proto-google-common-protos:1.16.0'
+  compile 'com.google.api.grpc:grpc-google-common-protos:1.16.0'
+  compile 'com.google.api.grpc:googleapis-common-protos:0.0.3'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+  testCompile 'org.mockito:mockito-junit-jupiter:2.19.0'
+  testCompile 'org.mockito:mockito-core:2.19.0'
+}
+
+task helloWorldServer(type: CreateStartScripts) {
+  mainClassName = "com.gbusiness.agentslot.server.GrpcServerMain"
+  outputDir = new File(project.buildDir, 'tmp')
+  applicationName = "server"
+  classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task helloWorldClient(type: CreateStartScripts) {
+  mainClassName = "com.gbusiness.agentslot.client.GrpcProductServiceClient"
+  outputDir = new File(project.buildDir, 'tmp')
+  applicationName = "client"
+  classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into("bin") {
+  from(helloWorldServer)
+  from(helloWorldClient)
+  fileMode = 0755
+}
+
+clean {
+    delete "$projectDir/src/main/gen"
+}

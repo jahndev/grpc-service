@@ -1,0 +1,262 @@
+syntax = "proto3";
+import "agent_slot.proto";
+import "agent.proto";
+import "status.proto";
+
+package com.gbusiness.agentslot.api;
+
+option java_multiple_files = true;
+option java_package = "com.gbusiness.agentslot.api";
+option java_outer_classname = "AgentSlotServiceProto";
+
+// Request to create a new meeting profile.
+message CreateMeetingProfileRequest {
+  // Meeting profile to be created.
+  MeetingProfile meeting_profile = 1;
+}
+
+
+
+// Response for CreateMeetingProfileRequest.
+message CreateMeetingProfileResponse {
+  // Id of the new meeting profile.
+  string meeting_profile_id = 1;
+
+  // If any error occurred, this field is set with proper information.
+  Status api_error = 2;
+
+}
+
+// Request to remove an existing meeting profile.
+message RemoveMeetingProfileRequest {
+  // Id of the meeting profile to be removed.
+  string meeting_profile_id = 1;
+}
+
+// Response for RemoveMeetingProfileRequest.
+message RemoveMeetingProfileResponse {
+  // If any error occurred, this field is set with proper information.
+  // If the meeting profile was successfully removed, this field is empty.
+  Status api_error = 1;
+}
+
+// Request to update an existing meeting profile.
+message UpdateMeetingProfileRequest {
+  // MeetingProfile object containing the information of the meeting prpfile.
+  // The meeting_profile_id is required and can not be changed.
+  MeetingProfile meeting_profile = 1;
+}
+
+// Response for UpdateMeetingProfileRequest.
+message UpdateMeetingProfileResponse {
+  // If any error occurred, this field is set with proper information.
+  // Otherwise, if the field is empty,
+  // the meeting profile was updated successfully.
+  Status api_error = 1;
+}
+
+// Request for retrieving meeting profiles.
+message GetMeetingProfilesRequest {
+  // List of meeting profile ids to retrieve.
+  repeated string meeting_profile_id = 1;
+}
+
+// Response for GetMeetingsProfileRequest.
+message GetMeetingProfilesResponse {
+  // List of retrieved meeting profiles.
+  repeated MeetingProfile meeting_profiles = 1;
+
+  // If any error occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Request to get the settings for the distribution of agent slots.
+message GetAgentSlotsSettingsRequest {
+  // The requested day to get the settings for.
+  int32 day = 1;
+}
+
+// Response for GetAgentSlotsSettings
+message GetAgentSlotsSettingsResponse {
+  // List of disjoint time intervals representing the hours
+  // where service is available.
+  repeated TimeInterval working_hours = 1;
+
+  // Time between each meeting start time presented to the end user.
+  int32 time_between_meetings_in_minutes = 2;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 3;
+
+}
+
+// Request to get the free slots.
+message ListSlotsRequest {
+  // Day for which to retrieve the free slots.
+  TimeInterval timeInterval = 1;
+}
+
+// Response for GetFreeSlotRequest
+message ListSlotsResponse {
+  // List of indices representing the free slots of the requested day.
+  // These indices are used in conjunction with time_between_meetings_in_minutes
+  // to determine the start time of the slots.
+  // i.e. Having time_between_meetings_in_minutes = 30
+  // and free_slots = [16, 18, 30] would represent
+  // start_times = [16 * 30/60, 18 * 30/60, 30 * 30/60] = [8am, 9am, 3pm]
+  repeated AgentSlot slots = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Request to retrieve agent slots.
+message GetSlotsRequest {
+  // List of agent slot ids to be retrieved.
+  repeated string agent_slot_id = 1;
+}
+
+// Response of GetSlotRequest.
+message GetSlotsResponse {
+  // List of retrieved agent slots.
+  repeated AgentSlot agent_slot = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Request to allocate a slot for a meeting.
+message AllocateSlotRequest {
+  // Merchant id for whom the slot is allocated.
+  string merchant_id = 1;
+
+  // Index of the meeting slot that is requested to be allocated.
+  int32 agent_slot_index = 2;
+
+  // Specifies preferences for selecting the agent for the slot.
+  AgentPreferences agent_preferences = 3;
+}
+
+// Set of preferences taken into account when allocating the agent slot.
+message AgentPreferences {
+  // If this field is set, try to select an agent working in the
+  // specified timezone.
+  string timezone = 1;
+}
+
+// Response for AllocateSlotRequest.
+// Allocated slot must be confirmed during a time frame, otherwise,
+// the slot is automatically freed.
+message AllocateSlotResponse {
+  // Filled with an agent slot id if the requested slot was successfully
+  // allocated. Empty if the agent slot was not able to be allocated.
+  string allocated_agent_slot_id = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Request for confirming an agent slot.
+// It's idempotent.
+message ConfirmSlotRequest {
+  // Agent slot id of the slot to be confirmed.
+  string agent_slot_id = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Response for ConfirmSlotRequest.
+message ConfirmSlotResponse {
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 1;
+}
+
+// Request to free an agent slot.
+// It's idempotent.
+message FreeSlotRequest {
+  // Agent slot if of the slot to be freed.
+  string agent_slot_id = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Response for FreeSlotRequest
+message FreeSlotResponse {
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 1;
+}
+
+// Request to reschedule an agent slot.
+message RescheduleSlotRequest {
+  // Agent slot id of the slot to be rescheduled.
+  string agent_slot_it = 1;
+
+  // Specifies preferences for selecting the agent for the new slot.
+  AgentPreferences agent_preferences = 2;
+
+  // If set, try to reschedule at the time specified by new_agent_slot_date.
+  int32 new_agent_slot_date = 3;
+}
+
+// Response to RescheduleSlotRequest.
+message RescheduleSlotResponse {
+  // Status of the reschedule response.
+  RescheduleStatus reschedule_status = 1;
+
+  // If any errors occurred, this field is set with proper information.
+  Status api_error = 2;
+}
+
+// Status of the reschedule operation.
+enum RescheduleStatus {
+  UNKNOWN_RESCHEDULE_STATUS = 0;
+  // The agent slot was reschedule successfully at the same time
+  // (taken by another agent).
+  SUCCESSFULLY_RESCHEDULED_AT_THE_SAME_TIME = 1;
+  // The agent slot was reschedule successfully to another time.
+  SUCCESSFULLY_RESCHEDULED_AT_ANOTHER_TIME = 2;
+  // Failed to reschedule the agent slot.
+  FAILED_TO_RESCHEDULE_AGENT_SLOT = 3;
+}
+
+service AgentSlotService {
+  rpc CreateMeetingProfile(CreateMeetingProfileRequest)
+      returns (CreateMeetingProfileResponse) {
+  }
+
+  rpc RemoveMeetingProfile(RemoveMeetingProfileRequest)
+      returns (RemoveMeetingProfileResponse) {
+  }
+
+  rpc UpdateMeetingProfile(UpdateMeetingProfileRequest)
+      returns (UpdateMeetingProfileResponse) {
+  }
+
+  rpc GetMeetingProfiles(GetMeetingProfilesRequest)
+      returns (GetMeetingProfilesResponse) {
+  }
+
+  rpc GetAgentSlotsSettings(GetAgentSlotsSettingsRequest)
+      returns (GetAgentSlotsSettingsResponse) {
+  }
+
+  rpc ListSlots(ListSlotsRequest) returns (ListSlotsResponse) {
+  }
+
+  rpc GetSlots(GetSlotsRequest) returns (GetSlotsResponse) {
+  }
+
+  rpc AllocateSlot(AllocateSlotRequest) returns (AllocateSlotResponse) {
+  }
+
+  rpc ConfirmSlot(ConfirmSlotRequest) returns (ConfirmSlotResponse) {
+  }
+
+  rpc FreeSlot(FreeSlotRequest) returns (FreeSlotRequest) {
+  }
+
+  rpc RescheduleSlot(RescheduleSlotRequest) returns (RescheduleSlotResponse) {
+  }
+}

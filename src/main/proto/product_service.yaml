@@ -1,0 +1,10 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: com.gbusiness.product.api.ProductService.GetProductsDisplay
+      get: /v1/products
+    - selector: com.gbusiness.product.api.AgentSlotService.GetFreeSlots
+      get: /v1/products
+      body: "*"
